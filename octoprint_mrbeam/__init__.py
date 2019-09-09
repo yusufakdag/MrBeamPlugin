@@ -114,6 +114,7 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 		self._stored_frontend_notifications = []
 		self._device_series = self._get_val_from_device_info('device_series')  # '2C'
 		self.called_hosts = []
+		self._convertion_buffer = dict(request_id=None, buffer=[])
 
 		self._boot_grace_period_counter = 0
 		self._start_boot_grace_period_thread()
@@ -1025,14 +1026,34 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 		if response is not None:
 			return response
 
+		# self._logger.info("ANDYTEST gcodeConvertCommand() data: %s", data)
+
 		appendGcodeFiles = data['gcodeFilesToAppend']
 		del data['gcodeFilesToAppend']
 
 		if command == "convert":
+			request_id = data.get('requestId', "NoId");
+			svg_total_chunks = data.get('chunksTotal', 1)
+			svg_chunk_num = int(data.get('chunkIndex', 0)) - 1
+
+			if not self._convertion_buffer['request_id'] == request_id:
+				self._convertion_buffer['request_id'] = request_id
+				self._convertion_buffer['buffer'] = [None] * int(svg_total_chunks)
+
 			# TODO stripping non-ascii is a hack - svg contains lots of non-ascii in <text> tags. Fix this!
-			svg = ''.join(i for i in data['svg'] if ord(i) < 128)  # strip non-ascii chars like €
+			self._convertion_buffer['buffer'][svg_chunk_num] = ''.join(i for i in data['svg'] if ord(i) < 128)  # strip non-ascii chars like €
 			del data['svg']
+
+			if len(self._convertion_buffer['buffer']) < svg_total_chunks or None in self._convertion_buffer['buffer']:
+				self._logger.info("Convert: id=%s:received chunk %s/%s. Waiting for more...", request_id, svg_chunk_num, svg_total_chunks)
+				return NO_CONTENT
+
+			self._logger.info("Convert: id=%s:received chunk %s/%s. Starting convertion...", request_id, svg_chunk_num, svg_total_chunks)
+
 			filename = "local/temp.svg" # 'local' is just a path here, has nothing to do with the FileDestination.LOCAL
+			svg = "".join(self._convertion_buffer['buffer'])
+			self._convertion_buffer['request_id'] = None
+			self._convertion_buffer['buffer'] = []
 
 			class Wrapper(object):
 				def __init__(self, filename, content):
@@ -1047,34 +1068,34 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 			# write local/temp.svg to convert it
 			fileObj = Wrapper(filename, svg)
 			self._file_manager.add_file(FileDestinations.LOCAL, filename, fileObj, links=None, allow_overwrite=True)
-			
+
 			# safe history
 			ts = time.gmtime()
 			historyFilename = time.strftime("%Y-%m-%d_%H.%M.%S.mrb", ts)
 			historyObj = Wrapper(historyFilename, svg)
 			self._file_manager.add_file(FileDestinations.LOCAL, historyFilename, historyObj, links=None, allow_overwrite=True)
-			
+
 			# keep only x recent files in job history.
 			def is_history_file(entry):
 				_, extension = os.path.splitext(entry)
 				extension = extension[1:].lower()
 				return extension == "mrb"
-			
+
 			mrb_filter_func = lambda entry, entry_data: is_history_file(entry)
 			resp = self._file_manager.list_files(path="", filter=mrb_filter_func, recursive=True)
 			files = resp[FileDestinations.LOCAL]
 
 			max_history_files = 25 # TODO fetch from settings
-			if(len(files) > max_history_files): 
-				
+			if(len(files) > max_history_files):
+
 				removals = []
 				for key in files:
 					f = files[key]
 					tpl = (self._file_manager.last_modified(FileDestinations.LOCAL, path=f['path']), f['path'])
 					removals.append(tpl)
-				
+
 				sorted_by_age = sorted(removals, key=lambda tpl: tpl[0])
-					
+
 				# TODO each deletion causes an filemanager push update -> slow.
 				for i in range(0, len(sorted_by_age) - max_history_files):
 					f = sorted_by_age[i]

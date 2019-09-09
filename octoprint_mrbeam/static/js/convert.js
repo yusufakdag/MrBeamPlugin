@@ -1199,53 +1199,78 @@ $(function(){
                             advanced_settings: advancedSettings
 						};
 
+						var svgStr = '';
 						if(self.svg !== undefined){
 							// TODO place comment within initial <svg > tag.
-							data.svg = colorStr +"\n"+ self.svg;
+							// data.svg = colorStr +"\n"+ self.svg;
+							svgStr = colorStr +"\n"+ self.svg;
 						} else {
-							data.svg = colorStr +"\n"+ '<svg height="0" version="1.1" width="0" xmlns="http://www.w3.org/2000/svg"><defs/></svg>';
+							// data.svg = colorStr +"\n"+ '<svg height="0" version="1.1" width="0" xmlns="http://www.w3.org/2000/svg"><defs/></svg>';
+							svgStr = colorStr +"\n"+ '<svg height="0" version="1.1" width="0" xmlns="http://www.w3.org/2000/svg"><defs/></svg>';
 						}
 						if(self.gcodeFilesToAppend !== undefined){
 							data.gcodeFilesToAppend = self.gcodeFilesToAppend;
 						}
-						var json = JSON.stringify(data);
-						var length = json.length;
-						console.log("Conversion: " + length + " bytes have to be converted.");
-						$.ajax({
-							url: "plugin/mrbeam/convert",
-							type: "POST",
-							dataType: "json",
-							contentType: "application/json; charset=UTF-8",
-							data: json,
-							success: function (response) {
-								console.log("Conversion started.", response);
-							},
-							error: function ( jqXHR, textStatus, errorThrown) {
-							    self.slicing_in_progress(false);
-                                console.error("Conversion failed with status " + jqXHR.status, textStatus, errorThrown);
-							    if (jqXHR.status == 401) {
-							        self.loginState.logout();
-							        new PNotify({
-                                        title: gettext("Session expired"),
-                                        text: gettext("Please login again to start this laser job."),
-                                        type: "warn",
-                                        tag: "conversion_error",
-                                        hide: false
-                                    });
-                                } else {
-                                    if (length > 10000000) {
-                                        console.error("JSON size " + length + "Bytes may be over the request maximum.");
+
+						var chunkSize = 5 * 1024 * 1024;
+						var startTs = Date.now();
+						var svgBuffer = self.splitString(svgStr, chunkSize);
+						var dur = Date.now() - startTs;
+						console.log("splitString took " + dur + "ms to split " + svgStr.length + " bytes in " + svgBuffer.length + " chunks.");
+                        var svgChunksTotal = svgBuffer.length;
+                        var requestId = Math.random().toString(36).substring(2);
+
+                        var i = 1;
+						while (svgBuffer.length > 0) {
+
+						    data.requestId = requestId;
+						    data.chunksTotal = svgChunksTotal;
+						    data.chunkIndex = i;
+						    data.svg = svgBuffer.shift();
+
+                            var json = JSON.stringify(data);
+                            var length = json.length;
+                            console.log("Conversion: " + length + " bytes have to be converted.");
+                            $.ajax({
+                                url: "plugin/mrbeam/convert",
+                                type: "POST",
+                                dataType: "json",
+                                contentType: "application/json; charset=UTF-8",
+                                data: json,
+                                success: function (response) {
+                                    console.log("Conversion started. Part " + i+"/"+svgChunksTotal+ " uploaded. ", response);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    self.slicing_in_progress(false);
+                                    console.error("Conversion of part " + i+"/"+svgChunksTotal+ " failed with status " + jqXHR.status, textStatus, errorThrown);
+                                    if (jqXHR.status == 401) {
+                                        self.loginState.logout();
+                                        new PNotify({
+                                            title: gettext("Session expired"),
+                                            text: gettext("Please login again to start this laser job."),
+                                            type: "warn",
+                                            tag: "conversion_error",
+                                            hide: false
+                                        });
+                                    } else {
+                                        if (length > 10000000) {
+                                            console.error("JSON size " + length + "Bytes may be over the request maximum.");
+                                        }
+                                        new PNotify({
+                                            title: gettext("Conversion failed of part " + i+"/"+svgChunksTotal),
+                                            text: _.sprintf(gettext("Unable to start the conversion in the backend. Please try reloading this page or restarting Mr Beam II.%(br)s%(br)sContent length was %(length)s bytes."), {
+                                                length: length,
+                                                br: "<br/>"
+                                            }),
+                                            type: "error",
+                                            tag: "conversion_error",
+                                            hide: false
+                                        });
                                     }
-                                    new PNotify({
-                                        title: gettext("Conversion failed"),
-                                        text: _.sprintf(gettext("Unable to start the conversion in the backend. Please try reloading this page or restarting Mr Beam II.%(br)s%(br)sContent length was %(length)s bytes."), {length: length, br: "<br/>"}),
-                                        type: "error",
-                                        tag: "conversion_error",
-                                        hide: false
-                                    });
                                 }
-							}
-						});
+                            }); // end ajax
+                            i++;
+                        } // end while
 
 					});
 				} else {
@@ -1259,6 +1284,11 @@ $(function(){
 				}
 			}
 		};
+
+		self.splitString = function(string, size) {
+            var re = new RegExp('.{1,' + size + '}', 'gs');
+            return string.match(re);
+        };
 
 		self.do_engrave = function(){
 			const assigned_images = $('#engrave_job .assigned_colors').children().length;
