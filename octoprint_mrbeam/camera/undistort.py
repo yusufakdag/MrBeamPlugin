@@ -138,7 +138,7 @@ def prepareImage(input_image,  #: Union[str, np.ndarray],
     dbg_markers = os.path.join(dirname(path_to_output_image), "markers", basename(path_to_output_image))
     _mkdir(dirname(dbg_markers))
     outputPoints = _getColoredMarkerPositions(img,
-                                              debug_out_path=dbg_markers,
+                                              debug_folder=dbg_markers,
                                               blur=blur,
                                               threads=threads)
     markers = {}
@@ -194,9 +194,11 @@ def prepareImage(input_image,  #: Union[str, np.ndarray],
 
     return workspaceCorners, markers, missed, err
 
-def _getColoredMarkerPositions(img, debug_out_path=None, blur=5, threads=-1):
+def _getColoredMarkerPositions(img, debug_folder=None, blur=5, threads=-1):
     """Allows a multi-processing implementation of the marker detection algo. Up to 4 processes needed."""
     outputPoints = {}
+    if debug_folder is not None and not path.exists(debug_folder):
+        os.makedirs(debug_folder)
     # check all 4 corners
     if threads > 0:
         # takes around ~ 10MB RAM / thread
@@ -209,7 +211,7 @@ def _getColoredMarkerPositions(img, debug_out_path=None, blur=5, threads=-1):
             outputPoints[qd] = {'brightness': brightness} # Todo Ignore -> Tested in the MrbImgWorker
             results[qd] = (p.apply_async(_getColoredMarkerPosition,
                                          args=(roi,),
-                                         kwds=dict(debug_out_path=debug_out_path,
+                                         kwds=dict(debug_out_path=path.join(debug_folder, 'marker_{}.jpg'.format(qd)),
                                                    blur=blur,
                                                    quadrant=qd)), pos)
         while not all(r.ready() for r, pos in results.values()):
@@ -227,7 +229,7 @@ def _getColoredMarkerPositions(img, debug_out_path=None, blur=5, threads=-1):
             # print("brightness of corner {} : {}".format(qd, brightness))
             outputPoints[qd] = {'brightness': brightness}
             outputPoints[qd] = _getColoredMarkerPosition(roi,
-                                                         debug_out_path=debug_out_path,
+                                                         debug_out_path=path.join(debug_folder, 'marker_{}.jpg'.format(qd)),
                                                          blur=blur,
                                                          quadrant=qd)
             if outputPoints[qd] is not None:
@@ -266,19 +268,19 @@ def _getColoredMarkerPosition(roi, debug_out_path=None, blur=5, quadrant=None, d
     roiBlurThresh         =  cv2.bitwise_and( roiBlur, roiBlur, mask=cv2.bitwise_or(threshOtsuMask, gaussianMask))
     hsv_roiBlurThresh     =  cv2.cvtColor(    roiBlurThresh,     cv2.COLOR_BGR2HSV)
     # Use a sliding hue mask with a local maxima detector to find the magenta markers
-    debug_quad_path = debug_out_path.replace('.jpg', '{}.jpg'.format(quadrant))
     for hsvMask, bands in _get_hue_mask(hsv_roiBlurThresh, bandsize=23):
         if visual_debug: cv2.imshow(quadrant, hsvMask); cv2.waitKey(0)
         for spot, center, start, stop in _get_white_spots(hsvMask):
             spot.dtype = np.uint8
             if visual_debug: cv2.imshow("{} : spot".format(quadrant), cv2.imdecode(np.fromiter(spot, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)); cv2.waitKey(0)
             if isMarkerMask(spot[start[0]:stop[0], start[1]:stop[1]]):
-                y, x = np.round(center).astype("int")  # y, x
-                debug_roi = cv2.drawMarker(cv2.cvtColor(hsvMask, cv2.COLOR_GRAY2BGR), (x, y), (0, 0, 255), cv2.MARKER_CROSS)
-                cv2.imwrite(debug_quad_path, debug_roi)
+                if debug_out_path is not None:
+                    y, x = np.round(center).astype("int")  # y, x
+                    debug_roi = cv2.drawMarker(cv2.cvtColor(hsvMask, cv2.COLOR_GRAY2BGR), (x, y), (0, 0, 255), cv2.MARKER_CROSS)
+                    cv2.imwrite(debug_out_path, debug_roi)
                 return dict(pos=center, )
     # No marker found
-    cv2.imwrite(debug_quad_path, roiBlurThresh)
+    if debug_out_path is not None: cv2.imwrite(debug_out_path, roiBlurThresh)
     return None
 
 def isMarkerMask(mask, d_min=10, d_max=60, visual_debug=False):
