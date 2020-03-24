@@ -62,7 +62,7 @@ class WorkingAreaHelper {
 	/**
 	 * Workaround of a firefox bug which breaks quotes / brackets.
 	 * Solution is pragmatic - just replacing bogus characters after things got wrong.
-	 * 
+	 *
 	 * @param {type} svgStr
 	 * @returns {string} svgStr
 	 */
@@ -80,7 +80,7 @@ class WorkingAreaHelper {
 
 	/**
 	 * Returns with what program and version the given svg file was created. E.g. 'coreldraw'
-	 * 
+	 *
 	 * @param fragment (result of Snaps .select() .selectAll() .parse(), ...
 	 * @returns {object} keys: generator, version
 	 */

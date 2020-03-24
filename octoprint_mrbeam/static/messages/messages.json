@@ -1,0 +1,83 @@
+{
+  "messages": [
+    {
+      "id": 1,
+      "date": "20. 3. 2020",
+      "restrictions": {
+        "channels": [],
+        "version": [],
+        "version_and_newer": null,
+        "version_and_older": null,
+        "not_first_run": false
+      },
+      "content": {
+        "en": {
+          "title": "Title of the announcement",
+          "body": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+          "cta": {
+            "label": "Click here",
+            "url": "https://www.mr-beam.org"
+          }
+        },
+        "images": []
+      },
+      "notification": {
+        "sticky": 30,
+        "type": "info",
+        "restrictions": {
+          "channels": [],
+          "version": [],
+          "version_and_newer": null,
+          "version_and_older": null,
+          "not_first_run": false
+        },
+        "en": {
+          "title": "Notification title",
+          "body": "Notification body",
+          "cta": {
+            "label": "Click here",
+            "url": "https://www.mr-beam.org"
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "date": "22.3.2020",
+      "content": {
+        "en": {
+          "title": "Title of the 2. announcement",
+          "body": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+        }
+      }
+    },
+    {
+      "id": 3,
+      "date": "22. 3. 2020",
+      "content": {
+        "en": {
+          "title": "Title of the 3. announcement",
+          "body": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+        }
+      }
+    },
+    {
+      "id": 4,
+      "date": "22. 3. 2020",
+      "content": {
+        "en": {
+          "title": "Fourth message",
+          "body": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+        }
+      },
+      "notification": {
+        "sticky": 30,
+        "type": "info",
+        "en": {
+          "title": "Fourth message",
+          "body": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt"
+        }
+      }
+    }
+  ]
+}
