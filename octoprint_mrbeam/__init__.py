@@ -477,7 +477,7 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 			    "js/user_notification_viewmodel.js",
 			    "js/lib/load-image.all.min.js",  # to load custom material images
 			    "js/settings/custom_material.js",
-			    "js/settings/messages.js",
+			    "js/messages.js",
 			    ],
 			css=["css/mrbeam.css",
 			     "css/tinyColorPicker.css",
@@ -487,6 +487,7 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 			     "css/sliders.css",
 			     "css/hopscotch.min.css",
 			     "css/wizard.css",
+			     "css/tab_messages.css",
 			     ],
 			less=["less/mrbeam.less"]
 		)

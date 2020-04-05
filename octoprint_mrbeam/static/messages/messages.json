@@ -19,7 +19,7 @@
             "url": "https://www.mr-beam.org"
           }
         },
-        "images": []
+        "images": ["/plugin/mrbeam/static/img/color_picker.png", "/plugin/mrbeam/static/img/onebutton.jpg", "/plugin/mrbeam/static/img/kitty_sharpened.png"]
       },
       "notification": {
         "sticky": 30,
