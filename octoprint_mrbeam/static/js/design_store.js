@@ -3,7 +3,7 @@ $(function () {
         let self = this;
         window.mrbeam.viewModels['designStore'] = self;
 
-        self.DESIGN_STORE_IFRAME_SRC = 'http://127.0.0.1';
+        self.DESIGN_STORE_IFRAME_SRC = 'http://localhost:8080';
 
         self.loginState = params[0];
         self.navigation = params[1];
