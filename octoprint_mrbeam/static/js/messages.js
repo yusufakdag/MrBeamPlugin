@@ -14,6 +14,7 @@ $(function () {
 		self.loginState = parameters[2];
 
 		self.messages = ko.observableArray()
+		self.unreadCounter = ko.observable(0);
 		// self.currentUser = ko.observable(null)
 		self.lastMessageId = -1
 		self.notificationsHandled = false
@@ -120,7 +121,6 @@ $(function () {
 		self.showNotifications = function () {
 			console.log("ANDYTEST showNotifications() notificationsHandled: " + self.notificationsHandled + ", messagesLoaded: " + self.messagesLoaded)
 			if (!self.notificationsHandled && self.messagesLoaded) {
-				console.log("ANDYTEST showNotifications() showing")
 				var lmid = -1
 				self.messages().forEach(function (myMessage) {
 					if (myMessage.notification && myMessage.id > self.lastMessageId) {
@@ -137,6 +137,7 @@ $(function () {
 						} catch (e) {
 							console.error("Error showing notification for message id " + myMessage.id + ": ", e)
 						}
+						self.unreadCounter(self.unreadCounter() + 1);
 					}
 				})
 				self.notificationsHandled = true
@@ -217,6 +218,6 @@ $(function () {
 		["settingsViewModel", "userSettingsViewModel", "loginStateViewModel"],
 
 		// e.g. #settings_plugin_mrbeam, #tab_plugin_mrbeam, ...
-		["#messages"]
+		["#messages", "#messages_nav_tab", "#messages_burger_menu"]
 	]);
 });

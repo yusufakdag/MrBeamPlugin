@@ -48,8 +48,6 @@
 					<li class="active"><a href="#workingarea" data-toggle="tab" id="wa_tab_btn">{{ _('working area') }}</a></li>
                     {# Translators: Name of the tab #}
 					<li><a href="#designlib" data-toggle="tab" id="designlib_tab_btn">{{ _('design library') }}</a></li>
-                    {# Translators: Name of the tab #}
-					<li><a href="#messages" data-toggle="tab" id="designlib_tab_btn">{{ _('messages') }}</a></li>
                     {% if not enableFocus %}
 					<li><a href="#focus" data-toggle="tab" id="focus_tab_btn">{{ _('focus') }}</a></li>
                     {% endif %}
@@ -71,6 +69,16 @@
 						{% if "custom_bindings" not in data or data["custom_bindings"] %}<!-- /ko -->{% endif %}
 					{% endfor %}
 
+					<!-- ko allowBindings: false -->
+                    {# Translators: Name of the tab #}
+					<li data-bind="visible: unreadCounter() > 0">
+						<a id="messages_nav_tab" href="#messages" data-toggle="tab" id="designlib_tab_btn">
+							<i class="icon icon-envelope icon-large"></i>
+						</a>
+					</li>
+					<!-- /ko -->
+
+
 					<li id="burger_menu" class="dropdown">
 						<a href="#" id="burger_menu_link" class="dropdown-toggle" data-toggle="dropdown">
 							<i class="icon-reorder icon-large"></i>
@@ -78,7 +86,15 @@
 						  <b class="caret"></b>
 						</a>
 						<ul class="dropdown-menu">
-							<li><a href="#messages" data-toggle="tab" id="designlib_tab_btn"><i class="icon icon-envelope"></i> {{ _('Messages') }}</a></li>
+
+							<!-- ko allowBindings: false -->
+							<li id="messages_burger_menu">
+								<a href="#messages" data-toggle="tab" id="designlib_tab_btn">
+									<i class="icon icon-envelope" data-bind="css: {'highlight': unreadCounter() > 0}"></i>
+									{{ _('Messages') }} <span data-bind="text:'('+unreadCounter()+')', visible: unreadCounter() > 0"></span></a>
+							</li>
+							<!-- /ko -->
+							
 							<li><a href="#settings" data-toggle="tab" id="settings_tab_btn"><i class="icon-wrench"></i> {{ _('Settings') }}</a></li>
 							<li class="divider"></li>
                             <li><a href="#" onclick="$('#lasersafety_overlay').modal('show')" id="lasersafety_menu_item"><i class="icon-warning-sign"></i> {{ _('Laser Safety') }}</a></li>

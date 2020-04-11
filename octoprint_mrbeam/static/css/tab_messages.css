@@ -119,3 +119,11 @@
 	background-position: center;
 	background-repeat: no-repeat;
 }
+
+/* Navigation & menu stuff  */
+#messages_nav_tab { color: #e25303; }
+#messages_nav_tab:hover { color: #a63e03; }
+
+#messages_burger_menu i.icon-envelope.highlight {
+	color: #e25303;
+}
