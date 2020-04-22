@@ -275,7 +275,8 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 				iobeam_disable_warnings = False, # for develpment on non-MrBeam devices
 				suppress_migrations = False,     # for develpment on non-MrBeam devices
 				support_mode = False,
-				grbl_auto_update_enabled = True
+				grbl_auto_update_enabled = True,
+				design_store_email = None,
 			),
 			laser_heads=dict(
 				filename='laser_heads.yaml'
@@ -329,6 +330,7 @@ class MrBeamPlugin(octoprint.plugin.SettingsPlugin,
 				software_tier = self._settings.get(["dev", "software_tier"]),
 				software_tiers_available=software_channels_available(self),
 				terminalMaxLines = self._settings.get(['dev', 'terminalMaxLines'])),
+				design_store_email = self._settings.get(['dev', 'design_store_email']),
 			gcode_nextgen=dict(
 				enabled = self._settings.get(['gcode_nextgen', 'enabled']),
 				precision = self._settings.get(['gcode_nextgen', 'precision']),
